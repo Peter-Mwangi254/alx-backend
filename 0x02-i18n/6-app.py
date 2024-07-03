@@ -18,6 +18,7 @@ class Config:
 
 app = Flask(__name__)
 babel = Babel(app)
+app.url_map.strict_slashes = False
 app.config.from_object(Config)
 
 
@@ -60,6 +61,7 @@ def get_locale():
         locale = g.user.get('locale')
         if locale and locale in app.config['LANGUAGES']:
             return locale
+            
     # locale from request header
     locale = request.headers.get('locale', None)
     if locale in app.config['LANGUAGES']:
