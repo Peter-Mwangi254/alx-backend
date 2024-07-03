@@ -5,6 +5,8 @@ a simple flask app
 
 from flask import Flask, render_template, request, g
 from flask_babel import Babel
+from pytz import timezone
+import pytz.exceptions
 
 
 class Config:
@@ -56,19 +58,45 @@ def get_locale():
     if locale in app.config['LANGUAGES']:
         return locale
 
-    # Locale from user settings
+     # Locale from user settings
     if g.user:
         locale = g.user.get('locale')
         if locale and locale in app.config['LANGUAGES']:
-            return local
+            return locale
             
     # locale from request header
     locale = request.headers.get('locale', None)
     if locale in app.config['LANGUAGES']:
         return locale
 
-    # default
+    #default
     return request.accept_languages.best_match(app.config['LANGUAGES'])
+
+
+@babel.timezoneselector
+def get_timezone():
+    """
+    Select and return appropriate timezone
+    """
+    # Find timezone parameter in URL parameters
+    tzone = request.args.get('timezone', None)
+    if tzone:
+        try:
+            return timezone(tzone).zone
+        except pytz.exceptions.UnknownTimeZoneError:
+            pass
+    
+    # Find time zone from user settings
+    if g.user:
+        try:
+            tzone = g.user.get('timezone')
+            return timezone(tzone).zone
+        except pytz.exceptions.UnknownTimeZoneError:
+            pass
+    
+    # Default to UTC
+    default_tz = app.config['BABEL_DEFAULT_TIMEZONE']
+    return default_tz
 
 
 @app.route("/")
@@ -77,8 +105,7 @@ def index():
     Creates a single / route and an index.html
     template.
     """
-    return render_template('3-index.html')
-
+    return render_template('7-index.html')
 
 if __name__ == '__main__':
     app.run()
