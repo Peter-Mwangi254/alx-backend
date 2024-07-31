@@ -1,6 +1,6 @@
 const { expect } = require('chai');
 const kue = require('kue');
-const createPushNotificationsJobs = require('../8-job');
+const createPushNotificationsJobs = require('./8-job');
 
 describe('createPushNotificationsJobs', () => {
   let queue;
